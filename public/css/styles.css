@@ -1,0 +1,21 @@
+select#rowsPerPage {
+    border: 1px solid #c2c2c2;
+    height: 30px;
+    color: #8c8686;
+}
+
+h1#pageTitle {
+    margin-bottom: 50px !important;
+    font-size: 2.5em;
+}
+
+li.page-item.disabled.active a {
+    background: #284fc2 !important;
+    color: #fff;
+}
+.sidebar .sidebar-card .sidebar-card-illustration {
+    height: 6rem!important;
+}
+.sidebar .sidebar-card{
+    padding: 0!important;
+}
