@@ -2,13 +2,12 @@ import { defineConfig } from "vite";
 import { resolve } from "path";
 
 export default defineConfig({
-  base: "/stm_web_bolivia",
+  base: "/",
   build: {
     sourcemap: false, // ⬅️ DESATIVA source map
     rollupOptions: {
       input: {
-        main: resolve(__dirname, "index.html"), // login
-        home: resolve(__dirname, "home.html"), // home
+        main: resolve(__dirname, "index.html"),
       },
     },
   },
