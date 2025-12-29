@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import { resolve } from "path";
 
 export default defineConfig({
-  base: "/",
+  base: "stm_web_bolivia",
   build: {
     sourcemap: false, // ⬅️ DESATIVA source map
     rollupOptions: {
