@@ -1,7 +1,7 @@
 import { UserService } from "../../api/services/UserService.js";
 import { LoginService } from "../../api/LoginService.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
-import { renderTable } from "../../components/Table.js";
+import { renderTable } from "../../components/table.js";
 import { renderNewsEdit } from "./news-edit.js";
 
 export async function loadNews() {
@@ -27,18 +27,18 @@ export async function loadNews() {
       { key: "name", label: "Name", width: "150px" },
       { key: "user", label: "Usuario", width: "100px" },
       { key: "password", label: "Contraseña", width: "100px" },
-      { key: "active", label: "Activo", width: "80px" }
+      { key: "active", label: "Activo", width: "80px" },
     ],
     data,
     rowsOptions: [15, 30, 60, 100, 150],
     tableHeight: null, // altura dinâmica baseada na tela
     disableDelete: true,
-    onView: user => renderNewsEdit(content, user, true),
-    onEdit: id => alert("Edit User " + id),
-    onDelete: id => {
+    onView: (user) => renderNewsEdit(content, user, true),
+    onEdit: (id) => alert("Edit User " + id),
+    onDelete: (id) => {
       if (confirm("Are you sure you want to delete user " + id + "?")) {
         alert("Deleted User " + id);
       }
-    }
+    },
   });
 }

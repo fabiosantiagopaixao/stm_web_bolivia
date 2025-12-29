@@ -1,7 +1,7 @@
 import { TerritoryService } from "../../api/services/TerritoryService.js";
 import { LoginService } from "../../api/LoginService.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
-import { renderTable } from "../../components/Table.js";
+import { renderTable } from "../../components/table.js";
 
 export async function loadTerritory() {
   const content = document.getElementById("card-data");
@@ -24,16 +24,16 @@ export async function loadTerritory() {
     columns: [
       { key: "id", label: "ID", width: "20px" },
       { key: "number", label: "Number", width: "20px" },
-      { key: "name", label: "Name" } // largura automática
+      { key: "name", label: "Name" }, // largura automática
     ],
     data,
     rowsOptions: [15, 30, 60, 100, 150],
     tableHeight: null, // altura dinâmica baseada na tela
-    onEdit: id => alert("Edit Territory " + id),
-    onDelete: id => {
+    onEdit: (id) => alert("Edit Territory " + id),
+    onDelete: (id) => {
       if (confirm("Are you sure you want to delete territory " + id + "?")) {
         alert("Deleted Territory " + id);
       }
-    }
+    },
   });
 }

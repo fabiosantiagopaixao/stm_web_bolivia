@@ -1,7 +1,7 @@
 import { AddressService } from "../../api/services/AddressService.js";
 import { LoginService } from "../../api/LoginService.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
-import { renderTable } from "../../components/Table.js";
+import { renderTable } from "../../components/table.js";
 
 export async function loadReportS13() {
   const content = document.getElementById("card-data");
@@ -32,16 +32,16 @@ export async function loadReportS13() {
       { key: "mute", label: "Mute", width: "60px" },
       { key: "blind", label: "Blind", width: "60px" },
       { key: "sign", label: "Sign", width: "60px" },
-      { key: "phone", label: "Phone", width: "150px" }
+      { key: "phone", label: "Phone", width: "150px" },
     ],
     data,
     rowsOptions: [15, 30, 60, 100, 150],
     tableHeight: null, // altura dinâmica baseada na tela
-    onEdit: id => alert("Edit Address " + id),
-    onDelete: id => {
+    onEdit: (id) => alert("Edit Address " + id),
+    onDelete: (id) => {
       if (confirm("Are you sure you want to delete address " + id + "?")) {
         alert("Deleted Address " + id);
       }
-    }
+    },
   });
 }

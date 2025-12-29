@@ -1,7 +1,7 @@
 import { CongregationService } from "../../api/services/CongregationService.js";
 import { LoginService } from "../../api/LoginService.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
-import { renderTable } from "../../components/Table.js";
+import { renderTable } from "../../components/table.js";
 
 export async function loadCongregation() {
   const content = document.getElementById("card-data");
@@ -26,16 +26,16 @@ export async function loadCongregation() {
       { key: "number", label: "Number", width: "80px" },
       { key: "name", label: "Name", width: "200px" },
       { key: "city", label: "City", width: "150px" },
-      { key: "active", label: "Active", width: "80px" }
+      { key: "active", label: "Active", width: "80px" },
     ],
     data,
     rowsOptions: [15, 30, 60, 100, 150],
     tableHeight: null, // altura dinâmica baseada na tela
-    onEdit: id => alert("Edit Congregation " + id),
-    onDelete: id => {
+    onEdit: (id) => alert("Edit Congregation " + id),
+    onDelete: (id) => {
       if (confirm("Are you sure you want to delete congregation " + id + "?")) {
         alert("Deleted Congregation " + id);
       }
-    }
+    },
   });
 }

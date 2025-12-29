@@ -4,6 +4,7 @@ import { resolve } from "path";
 export default defineConfig({
   base: "/stm_web/",
   build: {
+    sourcemap: false, // ⬅️ DESATIVA source map
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"), // login
@@ -21,12 +22,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // Todas as requisições para /api serão redirecionadas para o Google Apps Script
       "/api": {
         target:
           "https://script.google.com/macros/s/AKfycbwR3WVAPyUhzXVUniBlHvKtkcOA7ORiIPZGf4YzD9sCuDKSpbhqYw_IK4nvrqnelBetVw/exec",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""), // remove o /api da URL final
+        rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
   },
