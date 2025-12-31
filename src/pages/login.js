@@ -123,7 +123,7 @@ async function handleLogin(loginService) {
 
     if (user) {
       /* 🔹 Redireciona para home.html */
-      window.location.replace(`${BASE_PATH}home.html`);
+      window.location.replace(`${BASE_PATH}/home.html`);
     } else {
       showDialog({ type: "ERROR", message: "Invalid credentials" });
     }
