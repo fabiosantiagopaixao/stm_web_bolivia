@@ -4,7 +4,7 @@ export class RestApiBaseService {
   constructor(sheet = "") {
     this.sheet = sheet; // Nome da sheet padrão
     this.proxyUrl =
-      "https://stm-proxy-pxytqgsd0-fabios-projects-a860b1c6.vercel.app"; // URL do proxy
+      "https://stm-proxy-293iy5p3x-fabios-projects-a860b1c6.vercel.app"; // URL do proxy
     this.keyStorage = STORAGE_KEY + this.sheet;
   }
 

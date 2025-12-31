@@ -27,7 +27,7 @@ function init() {
   if (loginService.isLogged()) {
     // ✅ já logado → vai para home.html
     if (!window.location.pathname.endsWith("home.html")) {
-      window.location.replace(`${BASE_PATH}home.html`);
+      window.location.replace(`${BASE_PATH}/home.html`);
     }
     return;
   }
@@ -35,7 +35,7 @@ function init() {
   // ❌ não logado → renderiza login
   renderLogin(app, () => {
     // callback de sucesso do login
-    window.location.replace(`${BASE_PATH}home.html`);
+    window.location.replace(`${BASE_PATH}/home.html`);
   });
 }
 
