@@ -1,4 +1,4 @@
-import { loadHome } from "./home.js";
+import { loadHome } from "./home/content-home.js";
 import { loadCongregation } from "./congregation/index.js";
 import { renderCongregationsEdit } from "./congregation/congregation-edit.js";
 import { loadUser } from "./user/index.js";
@@ -16,9 +16,10 @@ import { loadReportS13 } from "./report/report_s13.js";
 import { loadAbout } from "./about/index.js";
 
 export function navigateTo(page) {
-  if (page === undefined) return;
+  if (!page) return;
 
   const routes = {
+    home: loadHome,
     user: loadUser,
     userEdit: renderUserEdit,
     territory: loadTerritory,
@@ -35,5 +36,11 @@ export function navigateTo(page) {
     congregationEdit: renderCongregationsEdit,
   };
 
+  // chama a função correspondente
   routes[page]?.();
+}
+
+// função para inicializar SPA default home
+export function initRouteDefault() {
+  loadHome(); // carrega home ao abrir a página
 }

@@ -65,7 +65,7 @@
 
         <!-- Nav Item - Dashboard -->
         <li class="nav-item">
-          <a class="nav-link" href="#">
+          <a class="nav-link" data-page="home" title="Home" href="#">
             <i class="fas fa-fw fa-home"></i>
             <span>Home</span></a
           >
@@ -84,7 +84,7 @@
         <li class="nav-item">
           <a class="nav-link" data-page="user" title="Users" href="#">
             <i class="fas fa-fw fa-user"></i>
-            <span>Users</span>
+            <span>Usuarios</span>
           </a>
         </li>
 
@@ -96,7 +96,7 @@
             href="#"
           >
             <i class="fas fa-fw fa-location-arrow"></i>
-            <span>Territories</span>
+            <span>Territorios</span>
           </a>
         </li>
 
@@ -134,7 +134,7 @@
             href="#"
           >
             <i class="fas fa-fw fa-map"></i>
-            <span>Formulário S-13</span>
+            <span>Formulario S-13</span>
           </a>
         </li>
 
@@ -482,7 +482,18 @@
 
           <!-- Begin Page Content -->
           <div class="container-fluid">
-            <h1 id="pageTitle" class="h3 mb-2 text-gray-800">Home</h1>
+            <div
+              class="d-sm-flex align-items-center justify-content-between mb-4"
+            >
+              <h1 id="pageTitle" class="h3 mb-0 text-gray-800">DHomeshboard</h1>
+              <a
+                href="#"
+                id="btnAdd"
+                class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm noneButton"
+                ><i class="fas fa-plus fa-sm text-white-50"></i> Adicionar</a
+              >
+            </div>
+
             <div id="card-data" class="card shadow mb-4"></div>
           </div>
           <!-- /.container-fluid -->
@@ -561,8 +572,5 @@
     <!-- Page level plugins -->
     <script src="/vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
-
-    <!-- Page level custom scripts -->
-    <script src="/js/demo/datatables-demo.js"></script>
   </body>
 </html>

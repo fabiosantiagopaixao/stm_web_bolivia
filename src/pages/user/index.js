@@ -8,7 +8,6 @@ export async function loadUser() {
   const content = document.getElementById("card-data");
   document.getElementById("pageTitle").innerText = "Users";
 
-  // Mostra loading
   showLoading(content, "Loading Users...");
 
   const service = new UserService();
@@ -16,10 +15,8 @@ export async function loadUser() {
   const userLogged = loginService.getLoggedUser();
   const data = await service.getByCongregation(userLogged.congregation_number);
 
-  // Remove loading
   hideLoading(content);
 
-  // Renderiza a tabela usando o componente genérico
   renderTable({
     container: content,
     columns: [
@@ -30,7 +27,7 @@ export async function loadUser() {
     ],
     data,
     rowsOptions: [15, 30, 60, 100, 150],
-    tableHeight: null, // altura dinâmica baseada na tela
+    tableHeight: null,
     disableDelete: true,
     onView: (user) => renderUserEdit(content, user, true),
     onEdit: (user) => renderUserEdit(content, user),
@@ -40,4 +37,31 @@ export async function loadUser() {
       }
     },
   });
+
+  // Configura o botão de adicionar
+  setupAddButton(content);
+}
+
+/* 🔹 FUNÇÃO PARA CONFIGURAR O BOTÃO "ADICIONAR" */
+function setupAddButton(content) {
+  const btnAdd = document.getElementById("btnAdd");
+  if (!btnAdd) return;
+
+  // Remove d-none se quiser mostrar
+  btnAdd.classList.remove("noneButton");
+
+  btnAdd.onclick = (e) => {
+    e.preventDefault();
+
+    const newUser = {
+      id: null,
+      name: "",
+      user: "",
+      password: "",
+      active: true,
+      type: "PUBLISHER",
+    };
+
+    renderUserEdit(content, newUser);
+  };
 }

@@ -52,7 +52,6 @@ export function renderTable({
     const paginatedData = data.slice(startIndex, endIndex);
 
     container.innerHTML = `
-      <div class="card shadow mb-4">
         <div class="card-body">
 
           <!-- Rows per page -->
@@ -75,6 +74,8 @@ export function renderTable({
               entries
             </div>
           </div>
+
+          
 
           <!-- Table -->
           <div class="table-responsive">
@@ -178,7 +179,6 @@ export function renderTable({
           </div>
 
         </div>
-      </div>
     `;
 
     /* ===== Rows per page ===== */

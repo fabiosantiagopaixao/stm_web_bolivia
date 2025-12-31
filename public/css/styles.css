@@ -4,13 +4,12 @@ select#rowsPerPage {
     color: #8c8686;
 }
 
-h1#pageTitle {
-    margin-bottom: 50px !important;
-    font-size: 2.5em;
-}
 h1.display-4.mb-3 {
     color: #828282 !important;
 }
 p.lead {
     color: #979797 !important;
+}
+.noneButton {
+    display: none!important;
 }

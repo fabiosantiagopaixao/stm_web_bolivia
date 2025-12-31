@@ -34,12 +34,16 @@ function clearInvalid(input) {
 /* ================= Component ================= */
 
 export function renderUserEdit(container, userData, readonlyMode = false) {
-  document.getElementById("pageTitle").innerText = `${
-    readonlyMode ? "View User" : "Edit User"
-  } - ${userData.name}`;
+  const newUser = userData.id === null;
+
+  document.getElementById("pageTitle").innerText = newUser
+    ? "Nuevo usuario"
+    : readonlyMode
+    ? `View User - ${userData.name}`
+    : `Edit User - ${userData.name}`;
 
   container.innerHTML = `
-    <div class="card shadow mb-4">
+   
       <div class="card-body">
         <form id="userForm" novalidate>
 
@@ -47,14 +51,14 @@ export function renderUserEdit(container, userData, readonlyMode = false) {
           <div class="row mb-3">
             <div class="col-md-6">
               <label class="form-label">Nombre</label>
-              <input type="text" class="form-control" id="name"
+              <input type="text" class="form-control" id="name" placeholder="Insira su nombre"
                      value="${userData.name}" ${readonlyMode ? "disabled" : ""}>
               <div class="invalid-feedback">El nombre es obligatorio</div>
             </div>
 
             <div class="col-md-6">
               <label class="form-label">Usuario</label>
-              <input type="text" class="form-control" id="user"
+              <input type="text" class="form-control" id="user" placeholder="Insira su usuario"
                      value="${userData.user}" ${readonlyMode ? "disabled" : ""}>
               <div class="invalid-feedback">El usuario es obligatorio</div>
             </div>
@@ -64,7 +68,7 @@ export function renderUserEdit(container, userData, readonlyMode = false) {
           <div class="row mb-3">
             <div class="col-md-6">
               <label class="form-label">Contraseña</label>
-              <input type="password" class="form-control" id="password"
+              <input type="password" class="form-control" id="password" placeholder="Insira su contraseña"
                      value="${userData.password}" ${
     readonlyMode ? "disabled" : ""
   }>
@@ -121,7 +125,9 @@ export function renderUserEdit(container, userData, readonlyMode = false) {
                 !readonlyMode
                   ? `
                <button type="submit" class="btn btn-primary" style="margin-right: 10px">
-                  <i class="fas fa-save"></i> Salvar
+                  <i class="fas fa-save"></i> ${
+                    newUser ? " Salvar" : " Actualizar"
+                  }
                 </button>
               `
                   : ""
@@ -134,7 +140,6 @@ export function renderUserEdit(container, userData, readonlyMode = false) {
 
         </form>
       </div>
-    </div>
   `;
 
   /* ================= Validation & Submit ================= */
