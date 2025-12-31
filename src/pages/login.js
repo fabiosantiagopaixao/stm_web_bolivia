@@ -4,7 +4,11 @@ import { showLoading, hideLoading } from "../components/loading.js";
 import { showDialog } from "../components/dialog.js";
 
 /* 🔹 BASE PATH (Vite dev/prod) */
-const BASE_PATH = import.meta.env.BASE_URL;
+let BASE_PATH = "/";
+
+if (BASE_PATH.endsWith("/")) {
+  BASE_PATH = BASE_PATH.slice(0, -1);
+}
 
 export async function renderLogin() {
   const app = document.getElementById("app");
