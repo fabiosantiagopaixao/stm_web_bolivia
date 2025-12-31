@@ -3,25 +3,18 @@ const STORAGE_KEY = "stm_data_";
 export class RestApiBaseService {
   constructor(sheet = "") {
     this.sheet = sheet; // Nome da sheet padrão
-    this.scriptGoogleUrl = "https://script.google.com/macros/s/";
-    this.idSheet =
-      "AKfycbxZ21y5my1ghVosWramrcmiL9bvfmS2DlhxLKu5kMd_eNFbTPoYUy6pRXIygJrqMt9Bfg";
-    this.execSheet = "/exec?sheet=";
+    this.proxyUrl =
+      "https://stm-proxy-pxytqgsd0-fabios-projects-a860b1c6.vercel.app"; // URL do proxy
     this.keyStorage = STORAGE_KEY + this.sheet;
   }
 
   /* ======= MÉTODOS PRIVADOS ======= */
-  #getBaseUrl(sheetName) {
+  #getProxyUrl(sheetName, method = null, queryParams = "") {
     const sheetToUse = sheetName || this.sheet;
-    if (!sheetToUse) throw new Error("Sheet name not defined");
-    return `${this.scriptGoogleUrl}${this.idSheet}${this.execSheet}${sheetToUse}`;
-  }
-
-  #getBaseUrlWithCongregation(congregationNumber) {
-    if (!congregationNumber) throw new Error("Congregation Number not defined");
-    return `${this.#getBaseUrl(
-      this.sheet
-    )}&congregation_number=${congregationNumber}`;
+    let url = `${this.proxyUrl}/${sheetToUse}`;
+    if (method)
+      url += `?method=${method}${queryParams ? "&" + queryParams : ""}`;
+    return url;
   }
 
   #saveAsynStorage(data, congregationNumber = null) {
@@ -40,11 +33,11 @@ export class RestApiBaseService {
   }
 
   /* ======= MÉTODOS PÚBLICOS ======= */
-  async get() {
+  async get(queryParams = "") {
     const dataStorage = this.#getAsynStorage();
     if (dataStorage) return dataStorage;
 
-    const url = this.#getBaseUrl(this.sheet);
+    const url = this.#getProxyUrl(this.sheet, null, queryParams);
     const res = await fetch(url);
     if (!res.ok) throw new Error("GET error");
 
@@ -57,7 +50,8 @@ export class RestApiBaseService {
     const dataStorage = this.#getAsynStorage(congregationNumber);
     if (dataStorage) return dataStorage;
 
-    const url = this.#getBaseUrlWithCongregation(congregationNumber);
+    const query = `congregation_number=${congregationNumber}`;
+    const url = this.#getProxyUrl(this.sheet, null, query);
     const res = await fetch(url);
     if (!res.ok) throw new Error("GET error");
 
@@ -67,20 +61,11 @@ export class RestApiBaseService {
   }
 
   async #postData(method, body) {
-    const jsonBody = JSON.stringify(body);
-    console.log("[POST][BODY - json]:", jsonBody);
-
-    const url = `${this.#getBaseUrl(this.sheet)}&method=${method}`;
-    console.log("[POST][URL]:", url);
-
+    const url = this.#getProxyUrl(this.sheet, method);
     const res = await fetch(url, {
       method: "POST",
-      redirect: "follow",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "*/*",
-      },
-      body: jsonBody,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
@@ -90,8 +75,6 @@ export class RestApiBaseService {
     }
 
     const responseJson = await res.json();
-    console.log("[POST][RESPONSE]:", responseJson);
-
     return responseJson;
   }
 
