@@ -8,14 +8,9 @@ h1#pageTitle {
     margin-bottom: 50px !important;
     font-size: 2.5em;
 }
-
-li.page-item.disabled.active a {
-    background: #284fc2 !important;
-    color: #fff;
+h1.display-4.mb-3 {
+    color: #828282 !important;
 }
-.sidebar .sidebar-card .sidebar-card-illustration {
-    height: 6rem!important;
-}
-.sidebar .sidebar-card{
-    padding: 0!important;
+p.lead {
+    color: #979797 !important;
 }

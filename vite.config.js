@@ -2,23 +2,26 @@ import { defineConfig } from "vite";
 import { resolve } from "path";
 
 export default defineConfig({
-  base: "stm_web_bolivia",
+  base: "/",
+
   build: {
-    sourcemap: false, // ⬅️ DESATIVA source map
+    sourcemap: false,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, "index.html"),
+        index: resolve(__dirname, "index.html"),
+        home: resolve(__dirname, "home.html"),
       },
     },
   },
+
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),
       components: resolve(__dirname, "./src/components"),
       pages: resolve(__dirname, "./src/pages"),
-      contexts: resolve(__dirname, "./src/web"),
     },
   },
+
   server: {
     proxy: {
       "/api": {
