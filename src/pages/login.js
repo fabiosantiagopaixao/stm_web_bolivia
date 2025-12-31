@@ -20,7 +20,7 @@ export async function renderLogin() {
     <div class="d-flex justify-content-center align-items-center vh-100">
       <div class="card p-4 shadow" style="width: 360px;">
         <div class="text-center mb-3">
-          <img src="${BASE_PATH}img/logo.png" style="max-width:120px;">
+          <img src="${BASE_PATH}/img/logo.png" style="max-width:120px;">
         </div>
 
         <h4 class="text-center text-primary mb-4">Login</h4>
