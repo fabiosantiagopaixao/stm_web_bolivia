@@ -6,7 +6,7 @@ import { navigateTo, initRouteDefault } from "./route.js";
 const BASE_PATH = import.meta.env.BASE_URL;
 
 /* 🔹 USER IMAGE */
-const userLogoWomen = `${BASE_PATH}img/profile_woman.svg`;
+const userLogoMan = `${BASE_PATH}img/profile_man.svg`;
 
 /* 🔹 SERVICE */
 const loginService = new LoginService();
@@ -21,7 +21,7 @@ if (!user) {
   document.getElementById("userName").innerText = user.name;
   document.getElementById("nameCongregation").innerText =
     user.congregation_name;
-  document.getElementById("userLogo").src = userLogoWomen;
+  document.getElementById("userLogo").src = userLogoMan;
 
   /* 🔹 LOGOUT */
   document.getElementById("logoutLink").onclick = (e) => {

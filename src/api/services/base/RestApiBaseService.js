@@ -5,7 +5,7 @@ export class RestApiBaseService {
     this.sheet = sheet; // Nome da sheet padrão
     this.scriptGoogleUrl = "https://script.google.com/macros/s/";
     this.idSheet =
-      "AKfycbwks1reDtnBXhJB0aAuuPrnTm4yF51aYOVYRnOZcjZPOcDEj112kK-YWn0IMvcfVulQkA";
+      "AKfycbxZ21y5my1ghVosWramrcmiL9bvfmS2DlhxLKu5kMd_eNFbTPoYUy6pRXIygJrqMt9Bfg";
     this.execSheet = "/exec?sheet=";
     this.keyStorage = STORAGE_KEY + this.sheet;
   }
@@ -67,10 +67,6 @@ export class RestApiBaseService {
   }
 
   async #postData(method, body) {
-    // 🔍 LOG DO OBJETO ORIGINAL
-    console.log("[POST][BODY - object]:", body);
-
-    // 🔍 LOG DO JSON QUE VAI SER ENVIADO
     const jsonBody = JSON.stringify(body);
     console.log("[POST][BODY - json]:", jsonBody);
 
