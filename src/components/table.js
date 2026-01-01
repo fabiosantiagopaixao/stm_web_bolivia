@@ -1,5 +1,11 @@
 import { renderButton } from "./button.js";
 
+/* 🔹 BASE PATH (Vite) */
+let BASE_PATH = import.meta.env.BASE_URL || "/";
+if (BASE_PATH.endsWith("/")) {
+  BASE_PATH = BASE_PATH.slice(0, -1);
+}
+
 export function renderTable({
   container,
   columns,
@@ -19,11 +25,10 @@ export function renderTable({
 
   let sortConfig = { key: null, direction: "asc" }; // chave e direção da ordenação
 
-  // Cria os controles fora do render principal
   container.innerHTML = `
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <div style="flex-grow:1;margin-right: 20px;margin-top: -10px;">
+        <div style="flex-grow:1;margin-right:20px;margin-top:-10px;">
           <input type="search" id="tableSearch" class="form-control form-control-sm w-100" placeholder="Buscar">
         </div>
         <div>
@@ -81,7 +86,6 @@ export function renderTable({
     return value ?? "";
   }
 
-  // Ordena os dados
   function sortData() {
     if (!sortConfig.key) return;
     filteredData.sort((a, b) => {
@@ -116,7 +120,18 @@ export function renderTable({
 
       columns.forEach((c) => {
         const td = document.createElement("td");
-        td.innerHTML = renderCellValue(row[c.key]);
+        let cellValue = row[c.key];
+
+        // Substitui HOUSE_TO_HOUSE e PHONE por imagens
+        if (c.key === "type") {
+          if (cellValue === "HOUSE_TO_HOUSE") {
+            cellValue = `<a  data-title="Casa en Casa"><img src="${BASE_PATH}/img/house.png" alt="Casa" style="width:24px;height:24px;"></a>`;
+          } else if (cellValue === "PHONE") {
+            cellValue = `<a  data-title="Teléfono"><img src="${BASE_PATH}/img/phone.png" alt="Teléfono" style="width:24px;height:24px;"></a>`;
+          }
+        }
+
+        td.innerHTML = renderCellValue(cellValue);
         tr.appendChild(td);
       });
 
@@ -219,7 +234,6 @@ export function renderTable({
     );
   }
 
-  // Eventos de ordenação nos headers
   headers.forEach((th) => {
     th.addEventListener("click", () => {
       const key = th.dataset.key;
@@ -230,7 +244,6 @@ export function renderTable({
         sortConfig.direction = "asc";
       }
 
-      // Atualiza ícones
       headers.forEach((h) => {
         const icon = h.querySelector("i");
         if (!icon) return;
@@ -253,6 +266,7 @@ export function renderTable({
     currentPage = 1;
     renderTableBody();
   });
+
   searchInput.addEventListener("input", (e) => {
     const term = e.target.value.toLowerCase();
     filteredData = data.filter((row) =>
