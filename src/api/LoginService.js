@@ -16,14 +16,15 @@ export class LoginService {
 
     if (!Array.isArray(users)) return null;
 
-    const user = users.find(u =>
-      String(u.congregation_number) === String(congregationNumber) &&
-      u.user === username &&
-      String(u.password) === password &&
-      u.active === true
+    const user = users.find(
+      (u) =>
+        String(u.congregation_number) === String(congregationNumber) &&
+        u.user === username &&
+        String(u.password) === password &&
+        u.active === true
     );
 
-    if (!user){
+    if (!user) {
       this.userService.clearStorage(congregationNumber);
       return null;
     }
@@ -46,10 +47,6 @@ export class LoginService {
   }
 
   logout() {
-    const userLogged = this.getLoggedUser();
-    this.userService.clearStorage(userLogged.congregation_number);
-    this.territoryService.clearStorage(userLogged.congregation_number);
-    this.addressService.clearStorage(userLogged.congregation_number);
-    localStorage.removeItem(STORAGE_KEY);
+    UserService.clearAllCacheLogout();
   }
 }

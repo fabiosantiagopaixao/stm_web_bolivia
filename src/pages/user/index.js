@@ -3,6 +3,7 @@ import { LoginService } from "../../api/LoginService.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
 import { renderTable } from "../../components/table.js";
 import { renderUserEdit } from "./user-edit.js";
+import { renderButton } from "../../components/button.js"; // botão customizado
 
 export async function loadUser() {
   const content = document.getElementById("card-data");
@@ -36,10 +37,39 @@ export async function loadUser() {
         alert("Deleted User " + id);
       }
     },
+    extraButtons: [
+      (user) => createDeactivateUserButton(user, service, content, data),
+    ],
   });
 
-  // Configura o botão de adicionar
   setupAddButton(content);
+}
+
+/* 🔹 FUNÇÃO DE ALTERAR STATUS */
+async function onClickUserActivDeactivate(user, service, container) {
+  const newStatus = !user.active;
+  try {
+    showLoading(container, "Actualizando status...");
+    await service.put({ ...user, active: newStatus });
+    user.active = newStatus;
+
+    await loadUser();
+  } catch (err) {
+    alert("Error updating status: " + err.message);
+  } finally {
+    hideLoading(container);
+  }
+}
+
+/* 🔹 BOTÃO CUSTOMIZADO PARA ALTERAR ACTIVE */
+function createDeactivateUserButton(user, service, container) {
+  return renderButton({
+    iconClass: user.active ? "fas fa-toggle-on" : "fas fa-toggle-off",
+    colorClass: user.active ? "btn-success" : "btn-secondary",
+    title: user.active ? "Desactivar" : "Activar",
+    onClick: () => onClickUserActivDeactivate(user, service, container),
+    extraAttributes: { "data-action": "toggle", "data-id": user.id },
+  });
 }
 
 /* 🔹 FUNÇÃO PARA CONFIGURAR O BOTÃO "ADICIONAR" */
@@ -47,7 +77,6 @@ function setupAddButton(content) {
   const btnAdd = document.getElementById("btnAdd");
   if (!btnAdd) return;
 
-  // Remove d-none se quiser mostrar
   btnAdd.classList.remove("noneButton");
 
   btnAdd.onclick = (e) => {

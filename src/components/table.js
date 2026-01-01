@@ -1,256 +1,270 @@
+import { renderButton } from "./button.js";
+
 export function renderTable({
   container,
   columns,
-  data,
+  data: initialData,
   onView,
   onEdit,
   onDelete,
   disableEdit = false,
   disableDelete = false,
   rowsOptions = [15, 30, 60, 100],
+  extraButtons = [], // botões customizados
 }) {
   let currentPage = 1;
   let rowsPerPage = rowsOptions[0];
+  let data = [...initialData];
+  let filteredData = [...data];
 
-  /* ================= Helpers ================= */
+  let sortConfig = { key: null, direction: "asc" }; // chave e direção da ordenação
+
+  // Cria os controles fora do render principal
+  container.innerHTML = `
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div style="flex-grow:1;margin-right: 20px;margin-top: -10px;">
+          <input type="search" id="tableSearch" class="form-control form-control-sm w-100" placeholder="Buscar">
+        </div>
+        <div>
+          <label>Mostrando
+            <select id="rowsPerPage" class="form-select form-select-sm d-inline-block w-auto">
+              ${rowsOptions
+                .map(
+                  (opt) =>
+                    `<option value="${opt}" ${
+                      opt === rowsPerPage ? "selected" : ""
+                    }>${opt}</option>`
+                )
+                .join("")}
+            </select>
+          lineas</label>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              ${columns
+                .map(
+                  (c) =>
+                    `<th data-key="${c.key}" style="cursor:pointer">${c.label} <i class="fas fa-sort"></i></th>`
+                )
+                .join("")}
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div id="tableInfo"></div>
+        <ul class="pagination mb-0" id="pagination"></ul>
+      </div>
+    </div>
+  `;
+
+  const rowsSelect = container.querySelector("#rowsPerPage");
+  const searchInput = container.querySelector("#tableSearch");
+  const tbody = container.querySelector("#tableBody");
+  const tableInfo = container.querySelector("#tableInfo");
+  const pagination = container.querySelector("#pagination");
+  const headers = container.querySelectorAll("th[data-key]");
 
   function renderCellValue(value) {
-    if (value === true) {
-      return `
-        <span class="text-success" title="Activo">
-          <i class="fas fa-check-circle"></i>
-        </span>
-      `;
-    }
-
-    if (value === false) {
-      return `
-        <span class="text-danger" title="Inactivo">
-          <i class="fas fa-times-circle"></i>
-        </span>
-      `;
-    }
-
+    if (value === true)
+      return `<span class="text-success"><i class="fas fa-check-circle"></i></span>`;
+    if (value === false)
+      return `<span class="text-danger"><i class="fas fa-times-circle"></i></span>`;
     return value ?? "";
   }
 
-  function isBooleanData(value) {
-    return typeof value === "boolean";
+  // Ordena os dados
+  function sortData() {
+    if (!sortConfig.key) return;
+    filteredData.sort((a, b) => {
+      const valA = a[sortConfig.key];
+      const valB = b[sortConfig.key];
+      if (valA == null) return 1;
+      if (valB == null) return -1;
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortConfig.direction === "asc" ? valA - valB : valB - valA;
+      }
+      return sortConfig.direction === "asc"
+        ? String(valA).localeCompare(String(valB))
+        : String(valB).localeCompare(String(valA));
+    });
   }
 
-  function getHeaderClass(label) {
-    return label?.toLowerCase() === "activo" ? "text-center" : "";
-  }
+  function renderTableBody() {
+    sortData();
 
-  /* ================= Render ================= */
-
-  function render() {
-    const totalRows = data.length;
+    const totalRows = filteredData.length;
     const totalPages = Math.ceil(totalRows / rowsPerPage);
+    if (currentPage > totalPages) currentPage = totalPages || 1;
+
     const startIndex = (currentPage - 1) * rowsPerPage;
     const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
-    const paginatedData = data.slice(startIndex, endIndex);
+    const pageData = filteredData.slice(startIndex, endIndex);
 
-    container.innerHTML = `
-        <div class="card-body">
+    tbody.innerHTML = "";
 
-          <!-- Rows per page -->
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-              Show
-              <select id="rowsPerPage" class="form-select form-select-sm d-inline w-auto">
-                ${rowsOptions
-                  .map(
-                    (opt) => `
-                  <option value="${opt}" ${
-                      opt === rowsPerPage ? "selected" : ""
-                    }>
-                    ${opt}
-                  </option>
-                `
-                  )
-                  .join("")}
-              </select>
-              entries
-            </div>
-          </div>
+    pageData.forEach((row) => {
+      const tr = document.createElement("tr");
 
-          
+      columns.forEach((c) => {
+        const td = document.createElement("td");
+        td.innerHTML = renderCellValue(row[c.key]);
+        tr.appendChild(td);
+      });
 
-          <!-- Table -->
-          <div class="table-responsive">
-            <table id="dataTable" class="table table-bordered table-hover">
-              <thead>
-                <tr>
-                  ${columns
-                    .map(
-                      (c) => `
-                    <th class="${getHeaderClass(c.label)}">
-                      ${c.label}
-                    </th>
-                  `
-                    )
-                    .join("")}
-                  <th class="text-end" style="width:140px">Actions</th>
-                </tr>
-              </thead>
+      const tdActions = document.createElement("td");
+      tdActions.className = "text-end text-nowrap";
 
-              <tbody>
-                ${paginatedData
-                  .map(
-                    (row) => `
-                  <tr>
-                    ${columns
-                      .map(
-                        (c) => `
-                      <td class="${
-                        isBooleanData(row[c.key]) ? "text-center" : ""
-                      }">
-                        ${renderCellValue(row[c.key])}
-                      </td>
-                    `
-                      )
-                      .join("")}
+      const buttons = [];
+      if (onView)
+        buttons.push(
+          renderButton({
+            iconClass: "fas fa-eye",
+            colorClass: "btn-info",
+            title: "Visualizar",
+            id: row.id,
+            onClick: () => onView(row),
+          })
+        );
+      if (onEdit && !disableEdit)
+        buttons.push(
+          renderButton({
+            iconClass: "fas fa-edit",
+            colorClass: "btn-warning",
+            title: "Editar",
+            id: row.id,
+            onClick: () => onEdit(row),
+          })
+        );
+      if (onDelete && !disableDelete)
+        buttons.push(
+          renderButton({
+            iconClass: "fas fa-trash",
+            colorClass: "btn-danger",
+            title: "Deletar",
+            id: row.id,
+            onClick: () => onDelete(row),
+          })
+        );
+      extraButtons.forEach((fn) => {
+        const btn = fn(row);
+        if (btn instanceof HTMLElement) buttons.push(btn);
+      });
 
-                    <td class="text-end text-nowrap">
-
-                      <!-- View -->
-                      ${
-                        onView
-                          ? `
-                        <a href="#"
-                           class="btn btn-info btn-circle btn-sm"
-                           data-id="${row.id}"
-                           data-action="view">
-                          <i class="fas fa-eye"></i>
-                        </a>
-                      `
-                          : ""
-                      }
-
-                      <!-- Edit -->
-                      ${
-                        onEdit && !disableEdit
-                          ? `
-                        <a href="#"
-                           class="btn btn-warning btn-circle btn-sm"
-                           data-id="${row.id}"
-                           data-action="edit">
-                          <i class="fas fa-edit"></i>
-                        </a>
-                      `
-                          : ""
-                      }
-
-                      <!-- Delete -->
-                      ${
-                        onDelete && !disableDelete
-                          ? `
-                        <a href="#"
-                           class="btn btn-danger btn-circle btn-sm"
-                           data-id="${row.id}"
-                           data-action="delete">
-                          <i class="fas fa-trash"></i>
-                        </a>
-                      `
-                          : ""
-                      }
-
-                    </td>
-                  </tr>
-                `
-                  )
-                  .join("")}
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Footer -->
-          <div class="row align-items-center mt-3">
-            <div class="col-md-5">
-              <div class="dataTables_info">
-                Showing ${startIndex + 1} to ${endIndex} of ${totalRows} entries
-              </div>
-            </div>
-
-            <div class="col-md-7">
-              <ul class="pagination justify-content-end mb-0" id="pagination"></ul>
-            </div>
-          </div>
-
-        </div>
-    `;
-
-    /* ===== Rows per page ===== */
-    container.querySelector("#rowsPerPage").addEventListener("change", (e) => {
-      rowsPerPage = Number(e.target.value);
-      currentPage = 1;
-      render();
+      buttons.forEach((btn, index) => {
+        if (index !== buttons.length - 1) btn.style.marginRight = "4px";
+        tdActions.appendChild(btn);
+      });
+      tr.appendChild(tdActions);
+      tbody.appendChild(tr);
     });
 
-    /* ===== Pagination ===== */
-    const pagination = container.querySelector("#pagination");
+    tableInfo.textContent = `Mostrando ${
+      startIndex + 1
+    } hasta ${endIndex} de ${totalRows} lineas`;
+    renderPagination(totalPages);
+  }
+
+  function renderPagination(totalPages) {
     pagination.innerHTML = "";
+
+    function createPageButton(label, disabled, onClick, active = false) {
+      const li = document.createElement("li");
+      li.className = `page-item ${disabled ? "disabled" : ""} ${
+        active ? "active" : ""
+      }`;
+      const a = document.createElement("a");
+      a.href = "#";
+      a.className = "page-link";
+      a.textContent = label;
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!disabled) onClick();
+      });
+      li.appendChild(a);
+      return li;
+    }
 
     pagination.appendChild(
       createPageButton("Previous", currentPage === 1, () => {
         currentPage--;
-        render();
+        renderTableBody();
       })
     );
-
-    for (let i = 1; i <= totalPages; i++) {
+    for (let i = 1; i <= totalPages; i++)
       pagination.appendChild(
-        createPageButton(i, i === currentPage, () => {
-          currentPage = i;
-          render();
-        })
+        createPageButton(
+          i,
+          false,
+          () => {
+            currentPage = i;
+            renderTableBody();
+          },
+          i === currentPage
+        )
       );
-    }
-
     pagination.appendChild(
       createPageButton("Next", currentPage === totalPages, () => {
         currentPage++;
-        render();
+        renderTableBody();
       })
     );
+  }
 
-    /* ===== Actions ===== */
-    container.querySelectorAll("a[data-action]").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (btn.classList.contains("disabled")) return;
+  // Eventos de ordenação nos headers
+  headers.forEach((th) => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.key;
+      if (sortConfig.key === key) {
+        sortConfig.direction = sortConfig.direction === "asc" ? "desc" : "asc";
+      } else {
+        sortConfig.key = key;
+        sortConfig.direction = "asc";
+      }
 
-        const action = btn.dataset.action;
-        const id = btn.dataset.id;
-        const rowData = data.find((r) => r.id == id); // pega o objeto completo
-
-        if (action === "view" && onView) onView(rowData);
-        if (action === "edit" && onEdit) onEdit(rowData);
-        if (action === "delete" && onDelete) onDelete(rowData);
+      // Atualiza ícones
+      headers.forEach((h) => {
+        const icon = h.querySelector("i");
+        if (!icon) return;
+        if (h.dataset.key === key) {
+          icon.className =
+            sortConfig.direction === "asc"
+              ? "fas fa-sort-up"
+              : "fas fa-sort-down";
+        } else {
+          icon.className = "fas fa-sort";
+        }
       });
+
+      renderTableBody();
     });
-  }
+  });
 
-  function createPageButton(label, disabled, onClick) {
-    const li = document.createElement("li");
-    li.className = `page-item ${disabled ? "disabled" : ""} ${
-      label === currentPage ? "active" : ""
-    }`;
+  rowsSelect.addEventListener("change", (e) => {
+    rowsPerPage = Number(e.target.value);
+    currentPage = 1;
+    renderTableBody();
+  });
+  searchInput.addEventListener("input", (e) => {
+    const term = e.target.value.toLowerCase();
+    filteredData = data.filter((row) =>
+      columns.some((c) =>
+        String(row[c.key] ?? "")
+          .toLowerCase()
+          .includes(term)
+      )
+    );
+    currentPage = 1;
+    renderTableBody();
+  });
 
-    const a = document.createElement("a");
-    a.href = "#";
-    a.className = "page-link";
-    a.textContent = label;
-
-    a.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (!disabled) onClick();
-    });
-
-    li.appendChild(a);
-    return li;
-  }
-
-  render();
+  renderTableBody();
 }

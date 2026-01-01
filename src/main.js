@@ -2,40 +2,35 @@ import { LoginService } from "./api/LoginService.js";
 import { renderLogin } from "./pages/login.js";
 
 /* 🔹 BASE PATH (Vite dev/prod) */
-const BASE_PATH = import.meta.env.BASE_URL; // "/stm_web_bolivia/" ou "/" em dev
+let BASE_PATH = import.meta.env.BASE_URL || "/";
 
-/* 🔹 REDIRECIONA URL INVÁLIDA PARA INDEX */
-const path = window.location.pathname.replace(/\/$/, ""); // remove "/" final
-
-// ✅ considera válido se terminar com "/" ou "index.html"
-console.log(path);
-if (!window.location.pathname.endsWith("/") && !path.endsWith("index.html")) {
-  window.location.replace(`${BASE_PATH}index.html`);
+// Remove barra final se houver (evita //home.html)
+if (BASE_PATH.endsWith("/")) {
+  BASE_PATH = BASE_PATH.slice(0, -1);
 }
 
 /* 🔹 APP CONTAINER */
 const app = document.getElementById("app");
-if (!app) {
-  throw new Error("App container (#app) not found");
-}
+if (!app) throw new Error("App container (#app) not found");
 
 /* 🔹 SERVICE */
 const loginService = new LoginService();
 
 /* 🔹 INIT */
 function init() {
+  const path = window.location.pathname.replace(/\/$/, "");
+
   if (loginService.isLogged()) {
-    // ✅ já logado → vai para home.html
-    if (!window.location.pathname.endsWith("home.html")) {
-      window.location.replace(`${BASE_PATH}/home.html`);
+    // já logado → vai para home.html
+    if (!path.endsWith("home.html") && !path.endsWith("home")) {
+      window.location.replace(`${BASE_PATH}/home`);
     }
     return;
   }
 
-  // ❌ não logado → renderiza login
+  // não logado → renderiza login
   renderLogin(app, () => {
-    // callback de sucesso do login
-    window.location.replace(`${BASE_PATH}/home.html`);
+    window.location.replace(`${BASE_PATH}/home`);
   });
 }
 

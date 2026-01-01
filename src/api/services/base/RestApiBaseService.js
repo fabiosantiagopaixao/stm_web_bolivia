@@ -1,95 +1,130 @@
+// src/api/services/RestApiBaseService.js
+
 const STORAGE_KEY = "stm_data_";
+const CACHE_CLEAR_INTERVAL = 10 * 60 * 1000; // 10 minutos
+//const CACHE_CLEAR_INTERVAL = 1 * 60 * 1000; // 1 minuto
+const CACHE_TIMESTAMP_KEY = "stm_cache_timestamp";
 
 export class RestApiBaseService {
-  constructor(sheet = "") {
-    this.sheet = sheet; // Nome da sheet padrão
-    this.proxyUrl =
-      "https://stm-proxy-293iy5p3x-fabios-projects-a860b1c6.vercel.app"; // URL do proxy
+  constructor(sheet = "", defaultCountry = "BO") {
+    this.sheet = sheet;
+    this.defaultCountry = defaultCountry; // 🔹 país padrão
+    this.proxyUrl = "https://stm-proxy.vercel.app/api/proxy";
     this.keyStorage = STORAGE_KEY + this.sheet;
+
+    // 🔹 Limpeza automática ao iniciar
+    RestApiBaseService.autoClearCacheIfNeeded();
   }
 
-  /* ======= MÉTODOS PRIVADOS ======= */
-  #getProxyUrl(sheetName, method = null, queryParams = "") {
-    const sheetToUse = sheetName || this.sheet;
-    let url = `${this.proxyUrl}/${sheetToUse}`;
-    if (method)
-      url += `?method=${method}${queryParams ? "&" + queryParams : ""}`;
-    return url;
+  /* ======= Cache local ======= */
+  #saveAsyncStorage(data) {
+    localStorage.setItem(this.keyStorage, JSON.stringify(data));
   }
 
-  #saveAsynStorage(data, congregationNumber = null) {
-    const key = congregationNumber
-      ? `${this.keyStorage}_${congregationNumber}`
-      : this.keyStorage;
-    localStorage.setItem(key, JSON.stringify(data));
-  }
-
-  #getAsynStorage(congregationNumber = null) {
-    const key = congregationNumber
-      ? `${this.keyStorage}_${congregationNumber}`
-      : this.keyStorage;
-    const data = localStorage.getItem(key);
+  #getAsyncStorage() {
+    const data = localStorage.getItem(this.keyStorage);
     return data ? JSON.parse(data) : null;
   }
 
-  /* ======= MÉTODOS PÚBLICOS ======= */
-  async get(queryParams = "") {
-    const dataStorage = this.#getAsynStorage();
-    if (dataStorage) return dataStorage;
+  clearStorage() {
+    localStorage.removeItem(this.keyStorage);
+  }
 
-    const url = this.#getProxyUrl(this.sheet, null, queryParams);
+  /* ======= GET ======= */
+  async get(queryParams = {}) {
+    const cached = this.#getAsyncStorage();
+    if (cached) return cached;
+
+    // 🔹 adiciona sheet + country automaticamente
+    const query = new URLSearchParams({
+      sheet: this.sheet,
+      country: this.defaultCountry,
+      ...queryParams,
+    }).toString();
+
+    const url = `${this.proxyUrl}?${query}`;
+    console.log("GET URL:", url);
+
     const res = await fetch(url);
-    if (!res.ok) throw new Error("GET error");
+    if (!res.ok) throw new Error(`GET error: ${res.status}`);
 
     const data = await res.json();
-    if (data) this.#saveAsynStorage(data);
+
+    // Só cacheia get geral
+    this.#saveAsyncStorage(data);
+
     return data;
   }
 
-  async getByCongregation(congregationNumber) {
-    const dataStorage = this.#getAsynStorage(congregationNumber);
-    if (dataStorage) return dataStorage;
-
-    const query = `congregation_number=${congregationNumber}`;
-    const url = this.#getProxyUrl(this.sheet, null, query);
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("GET error");
-
-    const data = await res.json();
-    if (data) this.#saveAsynStorage(data, congregationNumber);
-    return data;
+  async getByCongregation(congregation_number) {
+    if (!congregation_number) return [];
+    return this.get({ congregation_number });
   }
 
+  /* ======= POST / PUT / DELETE ======= */
   async #postData(method, body) {
-    const url = this.#getProxyUrl(this.sheet, method);
+    const query = new URLSearchParams({
+      sheet: this.sheet,
+      country: this.defaultCountry, // 🔹 adiciona country
+      method,
+    }).toString();
+
+    const url = `${this.proxyUrl}?${query}`;
+    console.log(`${method} URL:`, url);
+
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("[POST][ERROR RESPONSE]:", text);
-      throw new Error(`POST error: ${res.status} - ${text}`);
-    }
+    if (!res.ok) throw new Error(`${method} error: ${res.status}`);
 
-    const responseJson = await res.json();
-    return responseJson;
+    const data = await res.json();
+
+    // 🔥 Limpa cache sempre que escrever
+    this.clearStorage();
+
+    return data;
   }
 
-  async post(body) {
+  post(body) {
     return this.#postData("POST", body);
   }
 
-  async put(body) {
+  put(body) {
     return this.#postData("PUT", body);
   }
 
-  clearStorage(congregationNumber = null) {
-    const key = congregationNumber
-      ? `${this.keyStorage}_${congregationNumber}`
-      : this.keyStorage;
-    localStorage.removeItem(key);
+  delete(body) {
+    return this.#postData("DELETE", body);
+  }
+
+  static clearAllCacheLogout() {
+    localStorage.clear(); // limpa tudo
+    console.log("🧹 Cache STM limpo globalmente");
+  }
+
+  static clearCacheButIgnoreTheseKeys(ignoreKeys = []) {
+    Object.keys(localStorage).forEach((key) => {
+      if (!ignoreKeys.includes(key)) {
+        localStorage.removeItem(key);
+      }
+    });
+    console.log("🧹 Cache STM limpo globalmente, mantendo:", ignoreKeys);
+  }
+
+  static autoClearCacheIfNeeded() {
+    const lastClear = Number(localStorage.getItem(CACHE_TIMESTAMP_KEY));
+
+    if (!lastClear || Date.now() - lastClear > CACHE_CLEAR_INTERVAL) {
+      RestApiBaseService.clearCacheButIgnoreTheseKeys([
+        CACHE_TIMESTAMP_KEY,
+        "stm_logged_user",
+      ]);
+
+      // 🔹 Atualiza o timestamp para marcar a última limpeza
+      localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+    }
   }
 }

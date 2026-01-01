@@ -13,3 +13,43 @@ p.lead {
 .noneButton {
     display: none!important;
 }
+
+/* Base do tooltip */
+[data-title] {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Tooltip aparece ao passar o mouse */
+[data-title]:hover::after {
+  content: attr(data-title);
+  position: absolute;
+  top: -35px; /* ajusta acima do botão */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff; /* fundo branco */
+  color: #000;      /* cor do texto */
+  border: 2px solid #4e73df; /* borda azul */
+  border-radius: 8px;         /* cantos arredondados */
+  padding: 4px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10000;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Remove a seta azul */
+[data-title]:hover::before {
+  content: none;
+}
+
+td.text-end.text-nowrap{
+    width: 50px!important;
+}
+
+/* Tabela */
+.table-bordered th {
+    background: #496edb;
+    color: #fff;
+}

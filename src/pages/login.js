@@ -10,13 +10,38 @@ if (BASE_PATH.endsWith("/")) {
   BASE_PATH = BASE_PATH.slice(0, -1);
 }
 
+/* 🔹 UTIL: delay async */
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/* 🔹 RENDER LOGIN */
 export async function renderLogin() {
+  const startTime = Date.now();
+
+  showLoading(null, "STM Data...");
+
   const app = document.getElementById("app");
   const pageTop = document.getElementById("page-top");
-  const loginService = new LoginService();
 
+  const loginService = new LoginService();
   const congregationService = new CongregationService();
-  const congregations = await congregationService.get();
+
+  let congregations = [];
+
+  try {
+    congregations = await congregationService.get();
+  } catch (err) {
+    hideLoading();
+    showDialog({ type: "ERROR", message: "Failed to load congregations" });
+    return;
+  }
+
+  /* ⏱️ garante loading mínimo de 2 segundos */
+  const elapsed = Date.now() - startTime;
+  if (elapsed < 2000) {
+    await wait(2000 - elapsed);
+  }
 
   if (pageTop) pageTop.innerHTML = "";
 
@@ -48,21 +73,28 @@ export async function renderLogin() {
         </div>
 
         <div class="mb-3">
-          <input id="password" type="password" class="form-control" placeholder="Password">
+          <input
+            id="password"
+            type="password"
+            class="form-control"
+            placeholder="Password"
+          >
           <div class="invalid-feedback">Password is required</div>
         </div>
 
-        <button id="loginBtn" class="btn btn-primary w-100">Login</button>
+        <button id="loginBtn" class="btn btn-primary w-100">
+          Login
+        </button>
       </div>
     </div>
   `;
 
   hideLoading();
 
-  attachInputListeners(); // adiciona listeners para remover erro ao digitar/selecionar
+  attachInputListeners();
 
   document.getElementById("loginBtn").onclick = async () => {
-    if (!validateInputs()) return; // ✅ só segue se os campos estiverem preenchidos
+    if (!validateInputs()) return;
     await handleLogin(loginService);
   };
 }
@@ -75,7 +107,6 @@ function validateInputs() {
   const username = document.getElementById("username");
   const password = document.getElementById("password");
 
-  // remove classe de erro anterior
   [congregation, username, password].forEach((el) =>
     el.classList.remove("is-invalid")
   );
@@ -84,10 +115,12 @@ function validateInputs() {
     congregation.classList.add("is-invalid");
     valid = false;
   }
+
   if (!username.value.trim()) {
     username.classList.add("is-invalid");
     valid = false;
   }
+
   if (!password.value.trim()) {
     password.classList.add("is-invalid");
     valid = false;
@@ -96,7 +129,7 @@ function validateInputs() {
   return valid;
 }
 
-/* 🔹 REMOVE ERRO QUANDO USUÁRIO COMEÇA A DIGITAR/SELECIONAR */
+/* 🔹 REMOVE ERRO AO DIGITAR */
 function attachInputListeners() {
   const fields = [
     document.getElementById("congregation"),
@@ -113,7 +146,10 @@ function attachInputListeners() {
   });
 }
 
+/* 🔹 LOGIN */
 async function handleLogin(loginService) {
+  const start = Date.now();
+
   showLoading(null, "Login...");
 
   try {
@@ -123,16 +159,27 @@ async function handleLogin(loginService) {
 
     const user = await loginService.login(congregationId, username, password);
 
+    /* ⏱️ loading mínimo 1.5s */
+    const elapsed = Date.now() - start;
+    if (elapsed < 1500) {
+      await wait(1500 - elapsed);
+    }
+
     hideLoading();
 
     if (user) {
-      /* 🔹 Redireciona para home.html */
-      window.location.replace(`${BASE_PATH}/home.html`);
+      window.location.replace(`${BASE_PATH}home`);
     } else {
-      showDialog({ type: "ERROR", message: "Invalid credentials" });
+      showDialog({
+        type: "ERROR",
+        message: "Invalid credentials",
+      });
     }
-  } catch {
+  } catch (err) {
     hideLoading();
-    showDialog({ type: "ERROR", message: "Login error" });
+    showDialog({
+      type: "ERROR",
+      message: "Login error",
+    });
   }
 }
