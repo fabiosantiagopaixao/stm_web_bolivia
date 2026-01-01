@@ -5,7 +5,9 @@ import { showConfirmModal } from "../components/modal.js";
 
 /* 🔹 BASE PATH (Vite) */
 let BASE_PATH = import.meta.env.BASE_URL || "/";
-if (BASE_PATH.endsWith("/")) BASE_PATH = BASE_PATH.slice(0, -1);
+if (!BASE_PATH.includes("localhost") && BASE_PATH.endsWith("/")) {
+  BASE_PATH = BASE_PATH.slice(0, -1);
+}
 
 /* 🔹 USER IMAGE */
 const userLogoMan = `${BASE_PATH}/img/profile_man.svg`;
@@ -17,7 +19,7 @@ const user = loginService.getLoggedUser();
 /* 🔹 AUTH GUARD */
 if (!user) {
   // Usuário não logado → redireciona para login
-  window.location.replace(`${BASE_PATH}/index.html`);
+  window.location.replace(`${BASE_PATH}/`);
 } else {
   // 🔹 USER DATA
   document.getElementById("userName").innerText = user.name;
@@ -37,7 +39,7 @@ if (!user) {
       showLoading(null, "Logout...");
       loginService.logout();
       hideLoading();
-      window.location.replace(`${BASE_PATH}/index.html`);
+      window.location.replace(`${BASE_PATH}`);
     },
   });
 

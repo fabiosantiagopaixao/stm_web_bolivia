@@ -5,7 +5,7 @@ import { renderLogin } from "./pages/login.js";
 let BASE_PATH = import.meta.env.BASE_URL || "/";
 
 // Remove barra final se houver (evita //home.html)
-if (BASE_PATH.endsWith("/")) {
+if (!BASE_PATH.includes("localhost") && BASE_PATH.endsWith("/")) {
   BASE_PATH = BASE_PATH.slice(0, -1);
 }
 
