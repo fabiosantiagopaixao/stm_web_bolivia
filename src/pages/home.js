@@ -1,14 +1,11 @@
 import { LoginService } from "../api/LoginService.js";
 import { showLoading, hideLoading } from "../components/loading.js";
 import { navigateTo, initRouteDefault } from "./route.js";
+import { showConfirmModal } from "../components/modal.js";
 
 /* 🔹 BASE PATH (Vite) */
 let BASE_PATH = import.meta.env.BASE_URL || "/";
-
-// Remove barra final se houver (evita //home.html)
-if (BASE_PATH.endsWith("/")) {
-  BASE_PATH = BASE_PATH.slice(0, -1);
-}
+if (BASE_PATH.endsWith("/")) BASE_PATH = BASE_PATH.slice(0, -1);
 
 /* 🔹 USER IMAGE */
 const userLogoMan = `${BASE_PATH}/img/profile_man.svg`;
@@ -19,8 +16,8 @@ const user = loginService.getLoggedUser();
 
 /* 🔹 AUTH GUARD */
 if (!user) {
-  // não logado → redireciona para index
-  window.location.replace(`${BASE_PATH}index`);
+  // Usuário não logado → redireciona para login
+  window.location.replace(`${BASE_PATH}/index.html`);
 } else {
   // 🔹 USER DATA
   document.getElementById("userName").innerText = user.name;
@@ -28,20 +25,35 @@ if (!user) {
     user.congregation_name;
   document.getElementById("userLogo").src = userLogoMan;
 
-  /* 🔹 LOGOUT */
-  document.getElementById("logoutLink").onclick = (e) => {
-    e.preventDefault();
-    showLoading(null, "Logout...");
-    loginService.logout();
-    document.getElementById("btnCloseModal")?.click();
-    hideLoading();
-    window.location.replace(`${BASE_PATH}`);
-  };
+  /* 🔹 LOGOUT MODAL DINÂMICO */
+  const logoutModal = showConfirmModal({
+    id: "logoutModal",
+    title: "¿Listo para partir?",
+    message:
+      'Seleccione "Cerrar sesión" a continuación si está listo para finalizar su sesión actual.',
+    primaryLabel: "Cerrar sesión",
+    secondaryLabel: "Cancelar",
+    onPrimary: () => {
+      showLoading(null, "Logout...");
+      loginService.logout();
+      hideLoading();
+      window.location.replace(`${BASE_PATH}/index.html`);
+    },
+  });
+
+  /* 🔹 BOTÃO LOGOUT */
+  const logoutBtn = document.getElementById("logoutTopbar");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      logoutModal.show();
+    });
+  }
 
   /* 🔹 INIT SPA */
   initRouteDefault(); // carrega home por padrão
 
-  /* 🔹 CAPTURA CLIQUES NO MENU (SPA NAVIGATION) */
+  /* 🔹 SPA NAVIGATION - CLIQUES NO MENU */
   document.addEventListener("click", (e) => {
     const link = e.target.closest("[data-page]");
     if (!link) return;

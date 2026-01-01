@@ -3,6 +3,7 @@ import { LoginService } from "../../api/LoginService.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
 import { renderTable } from "../../components/table.js";
 import { renderTerritoryEdit } from "./territory-edit.js";
+import { showConfirmModal } from "../../components/modal.js";
 
 export async function loadTerritory() {
   const content = document.getElementById("card-data");
@@ -12,33 +13,53 @@ export async function loadTerritory() {
 
   const service = new TerritoryService();
   const loginService = new LoginService();
-  const territoryLogged = loginService.getLoggedUser();
-  const data = await service.getByCongregation(
-    territoryLogged.congregation_number
-  );
+  const loggedUser = loginService.getLoggedUser();
+
+  const data = await service.getByCongregation(loggedUser.congregation_number);
 
   hideLoading(content);
 
   renderTable({
     container: content,
     columns: [
-      { key: "number", label: "Número", width: "150px" },
-      { key: "name", label: "Nombre", width: "100px" },
-      { key: "type", label: "Tipo", width: "100px" },
+      { key: "number", label: "Número" },
+      { key: "name", label: "Nombre" },
+      { key: "type", label: "Tipo" },
     ],
     data,
     rowsOptions: [15, 30, 60, 100, 150],
-    tableHeight: null,
+
     onView: (territory) => renderTerritoryEdit(content, territory, true),
+
     onEdit: (territory) => renderTerritoryEdit(content, territory),
-    onDelete: (id) => {
-      if (confirm("Are you sure you want to delete territory " + id + "?")) {
-        alert("Deleted Territory " + id);
-      }
-    },
+
+    onDelete: (territory) => onShowDialogDelete(territory, content),
   });
 
   setupAddButton(content);
+}
+
+function onShowDialogDelete(territory, content) {
+  const confirmodal = showConfirmModal({
+    title: "Eliminar Territorio",
+    message: `¿Está seguro que desea eliminar el territorio <b>${territory.number}</b>?`,
+    confirmText: "Sí",
+    cancelText: "No",
+    onConfirm: () => onDeleteYes(territory, content),
+  });
+  confirmodal.show();
+}
+
+async function onDeleteYes(territory, content) {
+  const service = new TerritoryService();
+
+  showLoading(content, "Eliminando territorio...");
+
+  await service.delete(territory.id);
+
+  hideLoading(content);
+
+  loadTerritory(); // recarrega a tabela
 }
 
 /* 🔹 FUNÇÃO PARA CONFIGURAR O BOTÃO "ADICIONAR" */

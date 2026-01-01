@@ -1,10 +1,9 @@
+// components/table.js
 import { renderButton } from "./button.js";
 
 /* 🔹 BASE PATH (Vite) */
 let BASE_PATH = import.meta.env.BASE_URL || "/";
-if (BASE_PATH.endsWith("/")) {
-  BASE_PATH = BASE_PATH.slice(0, -1);
-}
+if (BASE_PATH.endsWith("/")) BASE_PATH = BASE_PATH.slice(0, -1);
 
 export function renderTable({
   container,
@@ -16,24 +15,26 @@ export function renderTable({
   disableEdit = false,
   disableDelete = false,
   rowsOptions = [15, 30, 60, 100],
-  extraButtons = [], // botões customizados
+  extraButtons = [],
 }) {
   let currentPage = 1;
   let rowsPerPage = rowsOptions[0];
   let data = [...initialData];
   let filteredData = [...data];
-
-  let sortConfig = { key: null, direction: "asc" }; // chave e direção da ordenação
+  let sortConfig = { key: null, direction: "asc" };
 
   container.innerHTML = `
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div style="flex-grow:1;margin-right:20px;margin-top:-10px;">
-          <input type="search" id="tableSearch" class="form-control form-control-sm w-100" placeholder="Buscar">
+          <input type="search" id="tableSearch"
+            class="form-control form-control-sm w-100"
+            placeholder="Buscar">
         </div>
         <div>
           <label>Mostrando
-            <select id="rowsPerPage" class="form-select form-select-sm d-inline-block w-auto">
+            <select id="rowsPerPage"
+              class="form-select form-select-sm d-inline-block w-auto">
               ${rowsOptions
                 .map(
                   (opt) =>
@@ -54,10 +55,12 @@ export function renderTable({
               ${columns
                 .map(
                   (c) =>
-                    `<th data-key="${c.key}" style="cursor:pointer">${c.label} <i class="fas fa-sort"></i></th>`
+                    `<th data-key="${c.key}" style="cursor:pointer">
+                      ${c.label} <i class="fas fa-sort"></i>
+                    </th>`
                 )
                 .join("")}
-              <th class="text-end">Actions</th>
+              <th class="text-center">Acciones</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -89,16 +92,13 @@ export function renderTable({
   function sortData() {
     if (!sortConfig.key) return;
     filteredData.sort((a, b) => {
-      const valA = a[sortConfig.key];
-      const valB = b[sortConfig.key];
-      if (valA == null) return 1;
-      if (valB == null) return -1;
-      if (typeof valA === "number" && typeof valB === "number") {
-        return sortConfig.direction === "asc" ? valA - valB : valB - valA;
-      }
+      const A = a[sortConfig.key];
+      const B = b[sortConfig.key];
+      if (A == null) return 1;
+      if (B == null) return -1;
       return sortConfig.direction === "asc"
-        ? String(valA).localeCompare(String(valB))
-        : String(valB).localeCompare(String(valA));
+        ? String(A).localeCompare(String(B))
+        : String(B).localeCompare(String(A));
     });
   }
 
@@ -118,17 +118,48 @@ export function renderTable({
     pageData.forEach((row) => {
       const tr = document.createElement("tr");
 
+      // 🔹 NÃO ALTERA A ESTRUTURA DAS COLUNAS
       columns.forEach((c) => {
         const td = document.createElement("td");
+        if (c.width) td.style.width = c.width;
+
         let cellValue = row[c.key];
 
-        // Substitui HOUSE_TO_HOUSE e PHONE por imagens
         if (c.key === "type") {
           if (cellValue === "HOUSE_TO_HOUSE") {
-            cellValue = `<a  data-title="Casa en Casa"><img src="${BASE_PATH}/img/house.png" alt="Casa" style="width:24px;height:24px;"></a>`;
+            cellValue = `<a data-title="Casa en Casa">
+              <img src="${BASE_PATH}/img/house.png"
+                   style="width:50px;height:50px;">
+            </a>`;
           } else if (cellValue === "PHONE") {
-            cellValue = `<a  data-title="Teléfono"><img src="${BASE_PATH}/img/phone.png" alt="Teléfono" style="width:24px;height:24px;"></a>`;
+            cellValue = `<a data-title="Teléfono">
+              <img src="${BASE_PATH}/img/phone.png"
+                   style="width:50px;height:50px;">
+            </a>`;
           }
+        }
+
+        if (c.key === "gender") {
+          const ageType = row["age_type"];
+          const genderMap = {
+            Male: {
+              CHILD: "child_man.png",
+              YOUNG: "young_man.png",
+              ADULT: "man.png",
+              SENIOR: "senior_man.png",
+            },
+            Female: {
+              CHILD: "child_woman.png",
+              YOUNG: "young_woman.png",
+              ADULT: "woman.png",
+              SENIOR: "senior_woman.png",
+            },
+          };
+          const g = cellValue === "Male" ? "Male" : "Female";
+          cellValue = `<a class="photo">
+            <img src="${BASE_PATH}/img/${genderMap[g][ageType]}"
+                 style="width:50px;height:50px;">
+          </a>`;
         }
 
         td.innerHTML = renderCellValue(cellValue);
@@ -145,7 +176,6 @@ export function renderTable({
             iconClass: "fas fa-eye",
             colorClass: "btn-info",
             title: "Visualizar",
-            id: row.id,
             onClick: () => onView(row),
           })
         );
@@ -153,9 +183,8 @@ export function renderTable({
         buttons.push(
           renderButton({
             iconClass: "fas fa-edit",
-            colorClass: "btn-warning",
             title: "Editar",
-            id: row.id,
+            colorClass: "btn-warning",
             onClick: () => onEdit(row),
           })
         );
@@ -163,21 +192,22 @@ export function renderTable({
         buttons.push(
           renderButton({
             iconClass: "fas fa-trash",
-            colorClass: "btn-danger",
             title: "Deletar",
-            id: row.id,
+            colorClass: "btn-danger",
             onClick: () => onDelete(row),
           })
         );
+
       extraButtons.forEach((fn) => {
         const btn = fn(row);
         if (btn instanceof HTMLElement) buttons.push(btn);
       });
 
-      buttons.forEach((btn, index) => {
-        if (index !== buttons.length - 1) btn.style.marginRight = "4px";
+      buttons.forEach((btn, i) => {
+        if (i) btn.style.marginLeft = "4px";
         tdActions.appendChild(btn);
       });
+
       tr.appendChild(tdActions);
       tbody.appendChild(tr);
     });
@@ -185,13 +215,14 @@ export function renderTable({
     tableInfo.textContent = `Mostrando ${
       startIndex + 1
     } hasta ${endIndex} de ${totalRows} lineas`;
+
     renderPagination(totalPages);
   }
 
   function renderPagination(totalPages) {
     pagination.innerHTML = "";
 
-    function createPageButton(label, disabled, onClick, active = false) {
+    function page(label, disabled, cb, active = false) {
       const li = document.createElement("li");
       li.className = `page-item ${disabled ? "disabled" : ""} ${
         active ? "active" : ""
@@ -200,23 +231,24 @@ export function renderTable({
       a.href = "#";
       a.className = "page-link";
       a.textContent = label;
-      a.addEventListener("click", (e) => {
+      a.onclick = (e) => {
         e.preventDefault();
-        if (!disabled) onClick();
-      });
+        if (!disabled) cb();
+      };
       li.appendChild(a);
       return li;
     }
 
     pagination.appendChild(
-      createPageButton("Previous", currentPage === 1, () => {
+      page("Previous", currentPage === 1, () => {
         currentPage--;
         renderTableBody();
       })
     );
-    for (let i = 1; i <= totalPages; i++)
+
+    for (let i = 1; i <= totalPages; i++) {
       pagination.appendChild(
-        createPageButton(
+        page(
           i,
           false,
           () => {
@@ -226,8 +258,10 @@ export function renderTable({
           i === currentPage
         )
       );
+    }
+
     pagination.appendChild(
-      createPageButton("Next", currentPage === totalPages, () => {
+      page("Next", currentPage === totalPages, () => {
         currentPage++;
         renderTableBody();
       })
@@ -235,7 +269,7 @@ export function renderTable({
   }
 
   headers.forEach((th) => {
-    th.addEventListener("click", () => {
+    th.onclick = () => {
       const key = th.dataset.key;
       if (sortConfig.key === key) {
         sortConfig.direction = sortConfig.direction === "asc" ? "desc" : "asc";
@@ -245,29 +279,27 @@ export function renderTable({
       }
 
       headers.forEach((h) => {
-        const icon = h.querySelector("i");
-        if (!icon) return;
-        if (h.dataset.key === key) {
-          icon.className =
-            sortConfig.direction === "asc"
+        const i = h.querySelector("i");
+        if (!i) return;
+        i.className =
+          h.dataset.key === key
+            ? sortConfig.direction === "asc"
               ? "fas fa-sort-up"
-              : "fas fa-sort-down";
-        } else {
-          icon.className = "fas fa-sort";
-        }
+              : "fas fa-sort-down"
+            : "fas fa-sort";
       });
 
       renderTableBody();
-    });
+    };
   });
 
-  rowsSelect.addEventListener("change", (e) => {
+  rowsSelect.onchange = (e) => {
     rowsPerPage = Number(e.target.value);
     currentPage = 1;
     renderTableBody();
-  });
+  };
 
-  searchInput.addEventListener("input", (e) => {
+  searchInput.oninput = (e) => {
     const term = e.target.value.toLowerCase();
     filteredData = data.filter((row) =>
       columns.some((c) =>
@@ -278,7 +310,7 @@ export function renderTable({
     );
     currentPage = 1;
     renderTableBody();
-  });
+  };
 
   renderTableBody();
 }

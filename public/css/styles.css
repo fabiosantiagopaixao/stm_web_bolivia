@@ -53,3 +53,7 @@ td.text-end.text-nowrap{
     background: #496edb;
     color: #fff;
 }
+
+.nav-link, .btn,.btn.btn-danger,.btn.btn-primary {
+    cursor: pointer !important;
+}

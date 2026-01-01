@@ -21,10 +21,10 @@ export async function loadUser() {
   renderTable({
     container: content,
     columns: [
-      { key: "name", label: "Name", width: "150px" },
-      { key: "user", label: "Usuario", width: "100px" },
-      { key: "password", label: "Contraseña", width: "100px" },
-      { key: "active", label: "Activo", width: "80px" },
+      { key: "name", label: "Name" },
+      { key: "user", label: "Usuario" },
+      { key: "password", label: "Contraseña" },
+      { key: "active", label: "Activo" },
     ],
     data,
     rowsOptions: [15, 30, 60, 100, 150],
