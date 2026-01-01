@@ -4,7 +4,7 @@ import { showLoading, hideLoading } from "../components/loading.js";
 import { showDialog } from "../components/dialog.js";
 
 /* 🔹 BASE PATH (Vite dev/prod) */
-let BASE_PATH = "/";
+let BASE_PATH = import.meta.env.BASE_URL || "/";
 
 if (BASE_PATH.endsWith("/")) {
   BASE_PATH = BASE_PATH.slice(0, -1);
@@ -19,7 +19,7 @@ function wait(ms) {
 export async function renderLogin() {
   const startTime = Date.now();
 
-  showLoading(null, "STM Data...");
+  showLoading(null, "STM Login");
 
   const app = document.getElementById("app");
   const pageTop = document.getElementById("page-top");
