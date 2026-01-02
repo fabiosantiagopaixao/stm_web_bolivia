@@ -1,9 +1,9 @@
 import { TerritoryService } from "../../api/services/TerritoryService.js";
-import { LoginService } from "../../api/LoginService.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
 import { renderTable } from "../../components/table.js";
 import { renderTerritoryEdit } from "./territory-edit.js";
 import { showConfirmModal } from "../../components/modal.js";
+import { setUpButtonAdd } from "../util/PagesUtil.js";
 
 export async function loadTerritory() {
   const content = document.getElementById("card-data");
@@ -34,7 +34,21 @@ export async function loadTerritory() {
     onDelete: (territory) => onShowDialogDelete(territory, content),
   });
 
-  setupAddButton(content);
+  setUpButtonAdd({
+    buttonId: "btnAdd", // id do botão
+    content, // referência ao container/card
+    onClick: (content) => {
+      // função de clique personalizada
+      const newTerritory = {
+        id: null,
+        number: "",
+        name: "",
+        password: "",
+        type: "HOUSE_TO_HOUSE",
+      };
+      renderTerritoryEdit(content, newTerritory);
+    },
+  });
 }
 
 function onShowDialogDelete(territory, content) {
@@ -58,26 +72,4 @@ async function onDeleteYes(territory, content) {
   hideLoading(content);
 
   loadTerritory(); // recarrega a tabela
-}
-
-/* 🔹 FUNÇÃO PARA CONFIGURAR O BOTÃO "ADICIONAR" */
-function setupAddButton(content) {
-  const btnAdd = document.getElementById("btnAdd");
-  if (!btnAdd) return;
-
-  btnAdd.classList.remove("noneButton");
-
-  btnAdd.onclick = (e) => {
-    e.preventDefault();
-
-    const newTerritory = {
-      id: null,
-      number: "",
-      name: "",
-      password: "",
-      type: "HOUSE_TO_HOUSE",
-    };
-
-    renderTerritoryEdit(content, newTerritory);
-  };
 }

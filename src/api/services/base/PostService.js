@@ -5,7 +5,7 @@ export class PostService extends ApiBaseService {
     super(sheet);
 
     this.defaultCountry = defaultCountry;
-    this.proxyUrl = "https://stm-proxy.vercel.app/api/proxy";
+    this.proxyUrl = "https://stmproxy-production.up.railway.app/api/proxy";
   }
 
   async #request(method, body) {

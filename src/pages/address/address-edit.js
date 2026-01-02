@@ -1,5 +1,6 @@
 import { UserService } from "../../api/services/UserService.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
+import { removeAddButton } from "../util/PagesUtil.js";
 
 /**
  * Renderiza a página de edição ou visualização de usuário
@@ -10,6 +11,7 @@ import { showLoading, hideLoading } from "../../components/loading.js";
 export function renderAddressEdit(container, userData, readonlyMode = false) {
   let title = readonlyMode ? "View User" : "Edit User";
   title = title + " - " + userData.name;
+  removeAddButton();
   document.getElementById("pageTitle").innerText = title;
 
   container.innerHTML = `
@@ -69,6 +71,9 @@ export function renderAddressEdit(container, userData, readonlyMode = false) {
           <!-- Actions -->
           <div class="row mt-4">
             <div class="col-md-12 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" id="btnBack">
+                <i class="fas fa-arrow-left"></i> Voltar
+              </button>
               ${
                 !readonlyMode
                   ? `
@@ -77,9 +82,6 @@ export function renderAddressEdit(container, userData, readonlyMode = false) {
               </button>`
                   : ""
               }
-              <button type="button" class="btn btn-success" id="btnBack">
-                <i class="fas fa-arrow-left"></i> Voltar
-              </button>
             </div>
           </div>
         </form>

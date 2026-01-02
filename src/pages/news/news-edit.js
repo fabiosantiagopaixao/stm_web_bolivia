@@ -69,6 +69,9 @@ export function renderNewsEdit(container, userData, readonlyMode = false) {
           <!-- Actions -->
           <div class="row mt-4">
             <div class="col-md-12 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" id="btnBack">
+                <i class="fas fa-arrow-left"></i> Voltar
+              </button>
               ${
                 !readonlyMode
                   ? `
@@ -77,9 +80,6 @@ export function renderNewsEdit(container, userData, readonlyMode = false) {
               </button>`
                   : ""
               }
-              <button type="button" class="btn btn-success" id="btnBack">
-                <i class="fas fa-arrow-left"></i> Voltar
-              </button>
             </div>
           </div>
         </form>

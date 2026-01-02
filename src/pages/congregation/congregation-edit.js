@@ -1,5 +1,6 @@
 import { UserService } from "../../api/services/UserService.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
+import { removeAddButton } from "../util/PagesUtil.js";
 
 /**
  * Renderiza a página de edição ou visualização de usuário
@@ -12,6 +13,7 @@ export function renderCongregationsEdit(
   userData,
   readonlyMode = false
 ) {
+  removeAddButton();
   let title = readonlyMode ? "View User" : "Edit User";
   title = title + " - " + userData.name;
   const titleElement = document.getElementById("pageTitle");
@@ -76,6 +78,9 @@ export function renderCongregationsEdit(
           <!-- Actions -->
           <div class="row mt-4">
             <div class="col-md-12 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" id="btnBack">
+                <i class="fas fa-arrow-left"></i> Voltar
+              </button>
               ${
                 !readonlyMode
                   ? `
@@ -84,9 +89,6 @@ export function renderCongregationsEdit(
               </button>`
                   : ""
               }
-              <button type="button" class="btn btn-success" id="btnBack">
-                <i class="fas fa-arrow-left"></i> Voltar
-              </button>
             </div>
           </div>
         </form>

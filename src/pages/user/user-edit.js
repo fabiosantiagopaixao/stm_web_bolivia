@@ -3,9 +3,9 @@ import { showLoading, hideLoading } from "../../components/loading.js";
 import { loadUser } from "./index.js";
 import { LoginService } from "../../api/LoginService.js";
 import { renderAlertModal } from "../../components/renderAlertModal.js"; // ✅ novo modal
+import { removeAddButton } from "../util/PagesUtil.js";
 
 /* ================= Helpers ================= */
-
 const USER_TYPES = [
   "PUBLISHER",
   "ADMINISTRATOR",
@@ -121,6 +121,9 @@ export function renderUserEdit(container, userData, readonlyMode = false) {
           <!-- Actions -->
           <div class="row mt-4">
             <div class="col-md-12 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" id="btnBack">
+                <i class="fas fa-arrow-left"></i> Voltar
+              </button>
               ${
                 !readonlyMode
                   ? `
@@ -132,9 +135,6 @@ export function renderUserEdit(container, userData, readonlyMode = false) {
               `
                   : ""
               }
-              <button type="button" class="btn btn-success" id="btnBack">
-                <i class="fas fa-arrow-left"></i> Voltar
-              </button>
             </div>
           </div>
 
@@ -143,9 +143,8 @@ export function renderUserEdit(container, userData, readonlyMode = false) {
   `;
 
   /* ================= Validation & Submit ================= */
-
+  removeAddButton();
   const form = container.querySelector("#userForm");
-
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (readonlyMode) return;

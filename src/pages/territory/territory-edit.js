@@ -4,6 +4,7 @@ import { loadTerritory } from "./index.js";
 import { LoginService } from "../../api/LoginService.js";
 import { renderAlertModal } from "../../components/renderAlertModal.js"; // ✅ novo modal
 import { territoryTypeToLabel } from "./shared-territory.js";
+import { removeAddButton } from "../util/PagesUtil.js";
 
 /* ================= Helpers ================= */
 
@@ -90,6 +91,9 @@ export function renderTerritoryEdit(
           <!-- Actions -->
           <div class="row mt-4">
             <div class="col-md-12 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" id="btnBack">
+                <i class="fas fa-arrow-left"></i> Voltar
+              </button>
               ${
                 !readonlyMode
                   ? `
@@ -101,9 +105,6 @@ export function renderTerritoryEdit(
               `
                   : ""
               }
-              <button type="button" class="btn btn-success" id="btnBack">
-                <i class="fas fa-arrow-left"></i> Voltar
-              </button>
             </div>
           </div>
 
@@ -112,9 +113,8 @@ export function renderTerritoryEdit(
   `;
 
   /* ================= Validation & Submit ================= */
-
+  removeAddButton();
   const form = container.querySelector("#territoryForm");
-
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (readonlyMode) return;

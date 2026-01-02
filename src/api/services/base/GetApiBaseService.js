@@ -1,7 +1,7 @@
 import { ApiBaseService } from "./ApiBaseService.js";
 
 const SHEET_BY_COUNTRY = {
-  BO: "AKfycbwhdYjuWnxBVi8Yz-t4if2nj9-G-zVL5uEJZVL6OkX2DcSlOEqHLV-DoCrEvppsNhoU",
+  BO: "AKfycbzplhjuuPVY6Zayt1UXuVcH_NmvzU-7L9CB_V9VIdh66vQ0IKbAazvy7tYofPMJ2PUNgg",
   BR: "BrazilSheet",
 };
 
