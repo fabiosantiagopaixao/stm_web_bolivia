@@ -40,17 +40,17 @@ export function renderTerritoryEdit(
           <!-- Name / Territory -->
           <div class="row mb-3">
             <div class="col-md-6">
-              <label class="form-label">Nombre</label>
-              <input type="text" class="form-control" id="name" placeholder="Insira el número T-0001"
+              <label class="form-label">Numero</label>
+              <input type="text" class="form-control" id="number" placeholder="Insira el número T-0001"
                      value="${territoryData.number}" ${
-    readonlyMode ? "disabled" : ""
+    readonlyMode || newTerritory ? "disabled" : ""
   }>
               <div class="invalid-feedback">El nombre es obligatorio</div>
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Usuario</label>
-              <input type="text" class="form-control" id="territory" placeholder="Insira el nombre"
+              <label class="form-label">Nombre</label>
+              <input type="text" class="form-control" id="name" placeholder="Insira el nombre"
                      value="${territoryData.name}" ${
     readonlyMode ? "disabled" : ""
   }>
@@ -61,7 +61,7 @@ export function renderTerritoryEdit(
           <!-- Type / Active -->
           <div class="row mb-3">
             <div class="col-md-6">
-              <label class="form-label">Type</label>
+              <label class="form-label">Tipo</label>
               <div class="mt-2" id="typeGroup">
                 ${TERRITORY_TYPES.map(
                   (type) => `
@@ -121,10 +121,8 @@ export function renderTerritoryEdit(
 
     let hasError = false;
 
+    const number = form.querySelector("#number");
     const name = form.querySelector("#name");
-    const territory = form.querySelector("#territory");
-    const password = form.querySelector("#password");
-    const active = form.querySelector("#active");
     const typeChecked = form.querySelector('input[name="type"]:checked');
     const typeError = form.querySelector("#typeError");
 
@@ -136,51 +134,33 @@ export function renderTerritoryEdit(
       hasError = true;
     }
 
-    if (!territory.value.trim()) {
-      setInvalid(territory);
-      hasError = true;
-    }
-
-    if (!password.value.trim()) {
-      setInvalid(password);
-      hasError = true;
-    }
-
     if (!typeChecked) {
       typeError.style.display = "block";
       hasError = true;
     }
 
-    if (!active.checked) {
-      setInvalid(active);
-      hasError = true;
-    }
-
     if (hasError) return;
-
-    const loginService = new LoginService();
-    const updatedTerritory = {
-      id: territoryData.id ?? null,
-      name: name.value.trim(),
-      territory: territory.value.trim(),
-      password: password.value.trim(),
-      type: typeChecked.value,
-      active: active.checked,
-      congregation_number:
-        loginService.getLoggedTerritory().congregation_number,
-    };
-
-    showLoading(null, "Saving territory...");
-
     try {
       const service = new TerritoryService();
+      const loginService = new LoginService();
+      const updatedTerritory = {
+        id: territoryData.id ?? null,
+        number: generateNumber(),
+        name: name.value.trim(),
+        type: typeChecked.value,
+        congregation_number:
+          loginService.getLoggedTerritory().congregation_number,
+      };
+
+      showLoading(container, "Saving territory...");
+
       await service.saveUpdate(updatedTerritory);
 
       // ✅ Modal de sucesso
       renderAlertModal(document.body, {
         type: "INFO",
         title: "Info",
-        message: "Usuário salvo com sucesso!",
+        message: "Territorio salvo com sucesso!",
       }).modal("show");
 
       loadTerritory();
@@ -190,7 +170,7 @@ export function renderTerritoryEdit(
       renderAlertModal(document.body, {
         type: "ERROR",
         title: "Error",
-        message: "Ocorreu um erro ao salvar usuário!",
+        message: "Ocorreu um erro ao salvar teritorio!",
       }).modal("show");
     } finally {
       hideLoading();
@@ -200,4 +180,6 @@ export function renderTerritoryEdit(
   container.querySelector("#btnBack").addEventListener("click", () => {
     loadTerritory();
   });
+
+  function generateNumber() {}
 }

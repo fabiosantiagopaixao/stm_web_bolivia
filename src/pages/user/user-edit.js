@@ -182,11 +182,6 @@ export function renderUserEdit(container, userData, readonlyMode = false) {
       hasError = true;
     }
 
-    if (!active.checked) {
-      setInvalid(active);
-      hasError = true;
-    }
-
     if (hasError) return;
 
     const loginService = new LoginService();
@@ -200,7 +195,7 @@ export function renderUserEdit(container, userData, readonlyMode = false) {
       congregation_number: loginService.getLoggedUser().congregation_number,
     };
 
-    showLoading(null, "Saving user...");
+    showLoading(container, "Saving user...");
 
     try {
       const service = new UserService();

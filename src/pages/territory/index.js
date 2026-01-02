@@ -12,10 +12,8 @@ export async function loadTerritory() {
   showLoading(content, "Cargando Territorios...");
 
   const service = new TerritoryService();
-  const loginService = new LoginService();
-  const loggedUser = loginService.getLoggedUser();
 
-  const data = await service.getByCongregation(loggedUser.congregation_number);
+  const data = await service.getByCongregation();
 
   hideLoading(content);
 

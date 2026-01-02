@@ -1,17 +1,17 @@
 select#rowsPerPage {
-    border: 1px solid #c2c2c2;
-    height: 30px;
-    color: #8c8686;
+  border: 1px solid #c2c2c2;
+  height: 30px;
+  color: #8c8686;
 }
 
 h1.display-4.mb-3 {
-    color: #828282 !important;
+  color: #828282 !important;
 }
 p.lead {
-    color: #979797 !important;
+  color: #979797 !important;
 }
 .noneButton {
-    display: none!important;
+  display: none !important;
 }
 
 /* Base do tooltip */
@@ -28,15 +28,15 @@ p.lead {
   left: 50%;
   transform: translateX(-50%);
   background: #fff; /* fundo branco */
-  color: #000;      /* cor do texto */
+  color: #000; /* cor do texto */
   border: 2px solid #4e73df; /* borda azul */
-  border-radius: 8px;         /* cantos arredondados */
+  border-radius: 8px; /* cantos arredondados */
   padding: 4px 8px;
   font-size: 12px;
   white-space: nowrap;
   z-index: 10000;
   pointer-events: none;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 /* Remove a seta azul */
@@ -44,16 +44,52 @@ p.lead {
   content: none;
 }
 
-td.text-end.text-nowrap{
-    width: 50px!important;
+td.text-end.text-nowrap {
+  width: 50px !important;
 }
 
 /* Tabela */
 .table-bordered th {
-    background: #496edb;
-    color: #fff;
+  background: #496edb;
+  color: #fff;
 }
 
-.nav-link, .btn,.btn.btn-danger,.btn.btn-primary {
-    cursor: pointer !important;
+.nav-link,
+.btn,
+.btn.btn-danger,
+.btn.btn-primary {
+  cursor: pointer !important;
+}
+/* 
+ Smartphones pequenos 
+ Celulares pequenos ≤ 576px 
+*/
+@media (max-width: 576px) {
+  h1.display-4.mb-3 {
+    font-size: 2em;
+  }
+  p.lead {
+    font-size: 1em;
+  }
+}
+
+/* 
+ Smartphones em geral
+ Celulares ≤ 768px
+*/
+@media (max-width: 768px) {
+  h1.display-4.mb-3 {
+    font-size: 2.5em;
+  }
+  p.lead {
+    font-size: 1.5em;
+  }
+}
+
+/* 
+ Smartphones em geral deitado
+ Celulares ≤ 768px
+*/
+@media (max-width: 768px) and (orientation: landscape) {
+  /* Smartphone deitado */
 }

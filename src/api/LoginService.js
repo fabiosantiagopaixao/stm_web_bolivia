@@ -1,14 +1,10 @@
 import { UserService } from "./services/UserService.js";
-import { TerritoryService } from "./services/TerritoryService.js";
-import { AddressService } from "./services/AddressService.js";
 
 const STORAGE_KEY = "stm_logged_user";
 
 export class LoginService {
   constructor() {
     this.userService = new UserService();
-    this.territoryService = new TerritoryService();
-    this.addressService = new AddressService();
   }
 
   async login(congregationNumber, username, password) {

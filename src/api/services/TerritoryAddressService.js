@@ -1,33 +1,45 @@
-import { RestApiBaseService } from "./base/RestApiBaseService.js";
+import { GetApiBaseService } from "./base/GetApiBaseService.js";
+import { PostService } from "./base/PostService.js";
 import { TerritoryService } from "./TerritoryService.js";
 import { AddressService } from "./AddressService.js";
+import { LoginService } from "../../api/LoginService.js";
 
-export class TerritoryAddressService extends RestApiBaseService {
+export class TerritoryAddressService {
   constructor() {
-    super("territory_address");
+    const nameSheet = "territory_address";
+    const loginService = new LoginService();
+    this.loggedUser = loginService.getLoggedUser();
+
+    const country = this.loggedUser?.country ?? "BO";
+    this.getApi = new GetApiBaseService(nameSheet, country);
+    this.writeApi = new PostService(nameSheet, country);
+
     this.territoryService = new TerritoryService();
     this.addressService = new AddressService();
   }
 
-  async getByTerritoryNumber(territoryNumber, congregationNumber) {
-    const data = await this.getByCongregation(congregationNumber);
+  /* ========= READ ========= */
+  async getByCongregation() {
+    return this.getApi.getByCongregation(this.loggedUser.congregation_number);
+  }
+
+  async getByTerritoryNumber(territoryNumber) {
+    const data = await this.getByCongregation();
 
     const list = data.filter(
       (item) => item.territory_number === territoryNumber
     );
 
     const result = [];
-    const addedTerritories = new Set(); // controla duplicados
+    const addedTerritories = new Set();
 
     for (const item of list) {
       const territory = await this.territoryService.getTerritoryByNumber(
-        item.territory_number,
-        congregationNumber
+        item.territory_number
       );
 
       if (territory && !addedTerritories.has(territory.number)) {
         addedTerritories.add(territory.number);
-
         result.push({
           ...item,
           territory,
@@ -38,18 +50,15 @@ export class TerritoryAddressService extends RestApiBaseService {
     return result;
   }
 
-  async getTerritoriesByAddressId(addressId, congregationNumber) {
-    const data = await this.getByCongregation(congregationNumber);
+  async getTerritoriesByAddressId(addressId) {
+    const data = await this.getByCongregation();
 
-    const list = data.filter((territory) => territory.address_id === addressId);
+    const list = data.filter((item) => item.address_id === addressId);
 
     const result = [];
 
     for (const item of list) {
-      const address = await this.addressService.getAddressById(
-        item.address_id,
-        congregationNumber
-      );
+      const address = await this.addressService.getAddressById(item.address_id);
 
       if (address) {
         result.push({
@@ -60,5 +69,17 @@ export class TerritoryAddressService extends RestApiBaseService {
     }
 
     return result;
+  }
+
+  /* ========= WRITE ========= */
+  async saveUpdate(territoryAddress) {
+    if (territoryAddress.id) {
+      return this.writeApi.put(territoryAddress);
+    }
+    return this.writeApi.post(territoryAddress);
+  }
+
+  async delete(territoryAddress) {
+    return this.writeApi.delete(territoryAddress);
   }
 }
